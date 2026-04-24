@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juan Pablo Ramirez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #f5f0e8;
+    --sand-dark: #ede6d6;
+    --ocean: #1a3a4a;
+    --ocean-mid: #2a5568;
+    --ocean-light: #4a8fa8;
+    --burnt: #bf5700;
+    --burnt-soft: #d4763a;
+    --text: #2c2416;
+    --muted: #7a6f60;
+    --white: #fdfaf5;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--white); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 22px 48px; display: flex; align-items: center; justify-content: space-between; transition: background 0.4s, box-shadow 0.4s; }
+  nav.scrolled { background: rgba(253,250,245,0.95); backdrop-filter: blur(8px); box-shadow: 0 1px 0 rgba(0,0,0,0.07); }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; letter-spacing: 0.05em; color: var(--white); text-decoration: none; transition: color 0.3s; }
+  nav.scrolled .nav-logo { color: var(--ocean); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { font-size: 12px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.85); text-decoration: none; transition: color 0.2s; }
+  nav.scrolled .nav-links a { color: var(--muted); }
+  .nav-links a:hover { color: var(--white); }
+  nav.scrolled .nav-links a:hover { color: var(--ocean); }
+
+  /* HERO */
+  .hero { position: relative; height: 100vh; min-height: 680px; display: flex; align-items: flex-end; padding: 0 48px 80px; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background-image: url('raja1.jpeg');
+    background-size: cover;
+    background-position: center;
+    /* TO USE YOUR PHOTO: remove the line above, add:
+       background-image: url('hero-ocean.jpg'); background-size: cover; background-position: center; */ }
+  .hero-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 120% 60% at 60% 80%, rgba(74,143,168,0.25) 0%, transparent 60%), radial-gradient(ellipse 80% 40% at 20% 60%, rgba(26,58,74,0.6) 0%, transparent 50%); animation: shimmer 8s ease-in-out infinite alternate; }
+  @keyframes shimmer { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.03); } }
+  .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,25,35,0.75) 0%, transparent 55%); }
+  .hero-content { position: relative; z-index: 2; max-width: 780px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ocean-light); margin-bottom: 20px; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+  .hero-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(52px, 8vw, 92px); font-weight: 300; line-height: 1; color: var(--white); letter-spacing: -0.01em; opacity: 0; animation: fadeUp 0.9s 0.35s forwards; }
+  .hero-name em { font-style: italic; font-weight: 300; color: rgba(255,255,255,0.7); }
+  .hero-tagline { margin-top: 28px; font-size: 17px; font-weight: 300; line-height: 1.65; color: rgba(255,255,255,0.75); max-width: 520px; opacity: 0; animation: fadeUp 0.9s 0.5s forwards; }
+  .hero-cta { margin-top: 40px; display: flex; gap: 16px; opacity: 0; animation: fadeUp 0.9s 0.65s forwards; }
+  .btn-primary { padding: 13px 28px; background: var(--burnt); color: var(--white); text-decoration: none; font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 2px; transition: background 0.2s, transform 0.2s; }
+  .btn-primary:hover { background: var(--burnt-soft); transform: translateY(-1px); }
+  .btn-ghost { padding: 13px 28px; border: 1px solid rgba(255,255,255,0.35); color: rgba(255,255,255,0.85); text-decoration: none; font-size: 12px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 2px; transition: border-color 0.2s, color 0.2s, transform 0.2s; }
+  .btn-ghost:hover { border-color: white; color: white; transform: translateY(-1px); }
+  .scroll-hint { position: absolute; bottom: 32px; right: 48px; z-index: 2; display: flex; align-items: center; gap: 10px; opacity: 0; animation: fadeUp 1s 1s forwards; }
+  .scroll-hint span { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .scroll-line { width: 40px; height: 1px; background: rgba(255,255,255,0.3); position: relative; overflow: hidden; }
+  .scroll-line::after { content: ''; position: absolute; left: -100%; top: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); animation: scanline 2s ease-in-out infinite; }
+  @keyframes scanline { 0% { left: -100%; } 100% { left: 100%; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SECTIONS */
+  section { padding: 100px 48px; }
+  .section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--burnt); margin-bottom: 14px; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 58px); font-weight: 300; line-height: 1.1; color: var(--ocean); letter-spacing: -0.01em; }
+  .section-title em { font-style: italic; color: var(--ocean-light); }
+
+  /* ABOUT */
+  .about { background: var(--white); max-width: 1200px; margin: 0 auto; }
+  .about-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; margin-top: 64px; }
+  .about-photo-wrap { position: relative; }
+  .photo-placeholder { width: 100%; aspect-ratio: 4/5; background: linear-gradient(160deg, var(--ocean) 0%, var(--ocean-light) 100%); border-radius: 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); font-size: 13px; letter-spacing: 0.1em; text-align: center; gap: 8px; }
+  .about-photo-accent { position: absolute; bottom: -20px; right: -20px; width: 60%; aspect-ratio: 1; border: 2px solid var(--burnt); border-radius: 3px; z-index: -1; }
+  .about-accent-img { position: absolute; top: -28px; left: -28px; width: 38%; aspect-ratio: 1; border-radius: 3px; overflow: hidden; z-index: 2; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+  .img-mini-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #0d2535, #2a7a8a); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: 10px; text-align: center; letter-spacing: 0.05em; flex-direction: column; gap: 4px; }
+  .about-text .section-title { margin-bottom: 28px; }
+  .about-text p { font-size: 16px; line-height: 1.8; color: var(--muted); margin-bottom: 18px; }
+  .about-text p strong { color: var(--text); font-weight: 500; }
+  .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; padding-top: 40px; border-top: 1px solid var(--sand-dark); }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; color: var(--ocean); line-height: 1; }
+  .stat-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+  /* TIMELINE */
+  .story { background: var(--sand); }
+  .story-inner { max-width: 1200px; margin: 0 auto; }
+  .story-header { margin-bottom: 72px; }
+  .timeline { position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 190px; top: 8px; bottom: 8px; width: 1px; background: linear-gradient(to bottom, var(--ocean-light), transparent); }
+  .timeline-item { display: grid; grid-template-columns: 190px 1fr; gap: 48px; margin-bottom: 64px; position: relative; }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-meta { text-align: right; padding-top: 4px; }
+  .timeline-year { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; color: var(--ocean); line-height: 1; }
+  .timeline-place { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ocean-light); margin-top: 6px; }
+  .timeline-dot { position: absolute; left: 183px; top: 10px; width: 15px; height: 15px; border-radius: 50%; background: var(--white); border: 2px solid var(--ocean-light); }
+  .timeline-body { padding-top: 2px; }
+  .timeline-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--ocean); margin-bottom: 6px; }
+  .timeline-company { font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--burnt); margin-bottom: 6px; }
+  .timeline-subtitle { font-size: 12px; color: var(--ocean-light); font-style: italic; margin-bottom: 14px; }
+  .timeline-desc { font-size: 15px; line-height: 1.8; color: var(--muted); }
+
+  /* ── PLACES / GALLERY ── */
+  .places { background: var(--ocean); color: var(--white); overflow: hidden; }
+  .places-inner { max-width: 1200px; margin: 0 auto; }
+  .places .section-label { color: var(--burnt-soft); }
+  .places .section-title { color: var(--white); }
+  .places .section-title em { color: rgba(255,255,255,0.55); }
+  .places-intro { max-width: 540px; font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.6); margin-top: 20px; margin-bottom: 60px; }
+
+  /* Tile grid */
+  .gallery { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 260px 260px; gap: 12px; }
+  .gallery-tile {
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  .gallery-tile:first-child { grid-row: 1 / 3; }
+
+  .tile-bg {
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s ease;
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+    position: relative;
+  }
+  .gallery-tile:hover .tile-bg { transform: scale(1.04); }
+
+  /* Placeholder gradients — removed once you add real background-image */
+  .tile-cortez  { background-image: url('cortez1.jpeg'); background-size: cover; background-position: center; }
+  .tile-raja    { background-image: url('raja1.jpeg'); background-size: cover; background-position: center; }
+  .tile-shanghai{ background-image: url('sh1.jpeg'); background-size: cover; background-position: center; }
+  .tile-asia    { background-image: url('asia1.jpeg'); background-size: cover; background-position: center; }
+
+  .tile-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%); pointer-events: none; }
+
+  .tile-caption { position: relative; z-index: 2; }
+  .tile-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; color: white; }
+  .tile-sub { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  .tile-count { display: inline-block; margin-top: 8px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 20px; }
+
+  /* Photo strip */
+  .photo-strip { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .strip-tile { height: 200px; border-radius: 3px; overflow: hidden; position: relative; cursor: pointer; }
+  .strip-bg { width: 100%; height: 100%; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 16px; transition: transform 0.5s ease; position: relative; }
+  .strip-tile:hover .strip-bg { transform: scale(1.04); }
+  .tile-surface { background-image: url('dive1.jpeg'); background-size: cover; background-position: center; }
+  .tile-nature  { background-image: url('travel1.jpeg'); background-size: cover; background-position: center; }
+
+  .photo-note { margin-top: 20px; font-size: 12px; color: rgba(255,255,255,0.3); font-style: italic; }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(8, 18, 25, 0.97);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .lightbox.open { display: flex; }
+
+  .lb-header {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+  .lb-title-wrap {}
+  .lb-location {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: white;
+  }
+  .lb-sublocation {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+  .lb-close {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .lb-close:hover { border-color: white; color: white; }
+
+  .lb-stage {
+    width: 100%;
+    max-width: 1000px;
+    padding: 80px 80px 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex: 1;
+  }
+
+  .lb-img-wrap {
+    width: 100%;
+    max-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* Lightbox image — shown when real photos are added */
+  .lb-img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 3px;
+    display: block;
+    transition: opacity 0.25s ease;
+  }
+
+  /* Placeholder shown when no photo is set */
+  .lb-placeholder {
+    width: 700px;
+    max-width: 100%;
+    height: 460px;
+    max-height: 70vh;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: rgba(255,255,255,0.25);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    border: 1px dashed rgba(255,255,255,0.1);
+  }
+  .lb-placeholder .ph-icon { font-size: 32px; opacity: 0.3; }
+
+  .lb-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    z-index: 5;
+  }
+  .lb-arrow:hover { border-color: white; color: white; }
+  .lb-arrow.prev { left: -64px; }
+  .lb-arrow.next { right: -64px; }
+
+  .lb-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .lb-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    border: none;
+  }
+  .lb-dot.active { background: white; transform: scale(1.3); }
+
+  .lb-counter {
+    position: absolute;
+    bottom: 24px;
+    right: 32px;
+    font-size: 11px;
+    font-family: 'DM Sans', monospace;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+  }
+
+  /* LOOKING */
+  .looking { background: var(--white); }
+  .looking-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
+  .looking-text p { font-size: 16px; line-height: 1.8; color: var(--muted); margin-top: 24px; margin-bottom: 18px; }
+  .looking-text p strong { color: var(--text); font-weight: 500; }
+  .role-cards { margin-top: 20px; }
+  .role-card { padding: 24px 28px; border-left: 2px solid var(--sand-dark); margin-bottom: 20px; transition: border-color 0.2s; }
+  .role-card:hover { border-color: var(--burnt); }
+  .role-card-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--ocean); margin-bottom: 8px; }
+  .role-card-desc { font-size: 14px; line-height: 1.7; color: var(--muted); }
+
+  /* CONTACT */
+  .contact { background: var(--sand); text-align: center; }
+  .contact-inner { max-width: 600px; margin: 0 auto; }
+  .contact .section-title { margin: 16px 0 24px; }
+  .contact-desc { font-size: 16px; line-height: 1.8; color: var(--muted); margin-bottom: 44px; }
+  .contact-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .contact-link { display: flex; align-items: center; gap: 8px; padding: 14px 28px; text-decoration: none; font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 2px; transition: all 0.2s; }
+  .contact-link.primary { background: var(--ocean); color: var(--white); }
+  .contact-link.primary:hover { background: var(--ocean-mid); transform: translateY(-2px); }
+  .contact-link.secondary { border: 1px solid var(--ocean); color: var(--ocean); }
+  .contact-link.secondary:hover { background: var(--ocean); color: var(--white); transform: translateY(-2px); }
+
+  footer { background: var(--ocean); padding: 32px 48px; display: flex; justify-content: space-between; align-items: center; }
+  footer .logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.6); }
+  footer .copy { font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; }
+
+  @media (max-width: 900px) {
+    nav { padding: 18px 24px; }
+    .nav-links { display: none; }
+    section { padding: 72px 24px; }
+    .hero { padding: 0 24px 60px; }
+    .about-inner { grid-template-columns: 1fr; gap: 48px; }
+    .about-accent-img { display: none; }
+    .timeline::before { left: 0; }
+    .timeline-item { grid-template-columns: 1fr; gap: 8px; }
+    .timeline-meta { text-align: left; }
+    .timeline-dot { display: none; }
+    .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: 200px 200px; }
+    .gallery-tile:first-child { grid-row: auto; }
+    .photo-strip { grid-template-columns: 1fr; }
+    .looking-inner { grid-template-columns: 1fr; gap: 48px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .lb-arrow.prev { left: 8px; }
+    .lb-arrow.next { right: 8px; }
+    .lb-stage { padding: 80px 60px 100px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">Juan Pablo Ramírez</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#story">Story</a></li>
+    <li><a href="#places">Worlds</a></li>
+    <li><a href="#looking">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Mexico City · Open to Remote & Hybrid</p>
+    <h1 class="hero-name">Juan Pablo<br><em>Ramírez</em></h1>
+    <p class="hero-tagline">Texas roots. Austin education. Shanghai chapter. Back in Mexico City and looking for the next interesting problem that crosses a border.</p>
+    <div class="hero-cta">
+      <a href="#story" class="btn-primary">My Story</a>
+      <a href="#contact" class="btn-ghost">Let's Talk</a>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-inner">
+    <div class="about-photo-wrap">
+      <div class="about-accent-img">
+        <img src="accent.jpeg"
+         style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+        <img src="headshot.jpeg" alt="Juan Pablo Ramirez"
+         style="width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:3px;display:block;">
+      <div class="about-photo-accent"></div>
+    </div>
+    <div class="about-text">
+      <p class="section-label">About Me</p>
+      <h2 class="section-title">Supply chain<br>by training. <em>Cross-border<br>by instinct.</em></h2>
+      <p>I grew up between Texas and Mexico, studied <strong>Supply Chain Management at UT Austin</strong>, and then took what was supposed to be a short stint in Shanghai — which turned into one of the better decisions I've made.</p>
+      <p>I spent two years building commercial bridges between <strong>China and Latin America</strong> — prospecting from Shanghai, opening accounts with major Mexican retailers, and learning how goods actually move across the planet. In parallel I was doing procurement consulting for a Mexico City firm, sourcing manufacturers in India and generating real cost reductions. Not glamorous. Genuinely useful.</p>
+      <p>Now I'm back in Mexico City, co-founding <strong>Boom Bite</strong> and looking for a full-time role with a global team where cross-border experience is an asset, not a footnote.</p>
+      <div class="about-stats">
+        <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Countries lived in</div></div>
+        <div class="stat-item"><div class="stat-num">20+</div><div class="stat-label">Countries visited</div></div>
+        <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Languages</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="story" id="story">
+  <div class="story-inner">
+    <div class="story-header">
+      <p class="section-label">Experience</p>
+      <h2 class="section-title">How I got <em>here.</em></h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-meta"><div class="timeline-year">2025–</div><div class="timeline-place">Mexico City</div></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-body">
+          <div class="timeline-company">Boom Bite</div>
+          <h3 class="timeline-title">Co-Founder & Head of Sales</h3>
+          <p class="timeline-desc">Building a consumer goods brand from scratch with my sister — from product concept to pre-launch pipeline across distributors, retail buyers, and influencer partners. Three-channel go-to-market covering e-commerce, retail, and social, with $7K+ in seed funding secured. A lot of learning about what it actually takes to get a product to shelf.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-meta"><div class="timeline-year">2024–26</div><div class="timeline-place">Shanghai, China</div></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-body">
+          <div class="timeline-company">Ningbo Market Union Group</div>
+          <h3 class="timeline-title">Sales Manager — China to Mexico</h3>
+          <p class="timeline-desc">Relocated to Shanghai to build B2B pipelines between Chinese manufacturers and Mexican retailers, starting from zero. Opened accounts at Liverpool and Coppel, managed the full cycle from first cold email to signed deal, and launched a private-label line from factory assessment through category launch. A lot of early mornings due to time zones.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-meta"><div class="timeline-year">2024–25</div><div class="timeline-place">Mexico City</div></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-body">
+          <div class="timeline-company">J. Garcia Lopez</div>
+          <h3 class="timeline-title">Procurement Consultant</h3>
+          <div class="timeline-subtitle">Part-time, alongside full-time role at Ningbo</div>
+          <p class="timeline-desc">Sourced and benchmarked manufacturers in India, generating competitive intelligence that drove a 15% cost reduction through renegotiation — without switching suppliers or disrupting supply. Conducted a full price and quality audit projecting 25–30% savings versus incumbents, and maintained one supplier relationship for future sourcing as they scale.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-meta"><div class="timeline-year">2023–24</div><div class="timeline-place">The Woodlands, TX</div></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-body">
+          <div class="timeline-company">Chiloko</div>
+          <h3 class="timeline-title">Sales & Operations</h3>
+          <p class="timeline-desc">Grew Amazon revenue 200% in six months through category strategy and targeted advertising on Seller Central. Closed distributor agreements and launched retail entry into 10 new stores, handling everything from buyer negotiations to shelf placement. First time building a brand's physical presence from nothing.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-meta"><div class="timeline-year">2019–23</div><div class="timeline-place">Austin, TX</div></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-body">
+          <div class="timeline-company">UT Austin — McCombs School of Business</div>
+          <h3 class="timeline-title">BBA in Supply Chain Management</h3>
+          <div class="timeline-subtitle">Minor in Finance</div>
+          <p class="timeline-desc">Built the academic foundation — procurement, logistics, operations, financial modelling. Started thinking about where the world's most interesting supply chains actually lived, and realized the answer wasn't in a textbook.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLACES / GALLERY -->
+<section class="places" id="places">
+  <div class="places-inner">
+    <p class="section-label">The World</p>
+    <h2 class="section-title">Drawn to depth.<br><em>Underwater and otherwise.</em></h2>
+    <p class="places-intro">I'm a PADI Open Water diver who ends up in the ocean whenever possible. The Sea of Cortez, Raja Ampat, the Gulf of Thailand — water has a way of putting everything else in perspective.</p>
+
+    <!--
+    ═══════════════════════════════════════════════════════
+    HOW TO ADD YOUR PHOTOS — read this once, then it's easy
+    ═══════════════════════════════════════════════════════
+
+    Each tile below has a data-photos attribute. That's where you list your photo filenames.
+    Just replace the placeholder names with your actual filenames, separated by commas.
+
+    Example — if your Sea of Cortez photos are named cortez1.jpg, cortez2.jpg, cortez3.jpg:
+      data-photos="cortez1.jpg,cortez2.jpg,cortez3.jpg"
+
+    To set the tile's cover image (what shows before clicking), find the class like "tile-cortez"
+    in the CSS above and add:
+      background-image: url('cortez1.jpg');
+
+    All photo files go in the same folder as index.html.
+    ═══════════════════════════════════════════════════════
+    -->
+
+    <div class="gallery">
+
+      <div class="gallery-tile"
+           data-location="Sea of Cortez"
+           data-sublocation="Mexico · Baja California"
+           data-photos="cortez1.jpeg,cortez2.jpeg,cortez3.jpeg,cortez4.jpeg"
+           onclick="openLightbox(this)">
+        <div class="tile-bg tile-cortez">
+          <div class="tile-overlay"></div>
+          <div class="tile-caption">
+            <div class="tile-name">Sea of Cortez</div>
+            <div class="tile-sub">Mexico · Baja California</div>
+            <div class="tile-count">4 photos · click to explore</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-tile"
+           data-location="Raja Ampat"
+           data-sublocation="Indonesia · West Papua"
+           data-photos="raja1.jpeg,raja2.jpeg,raja3.jpeg"
+           onclick="openLightbox(this)">
+        <div class="tile-bg tile-raja">
+          <div class="tile-overlay"></div>
+          <div class="tile-caption">
+            <div class="tile-name">Raja Ampat</div>
+            <div class="tile-sub">Indonesia · West Papua</div>
+            <div class="tile-count">3 photos · click to explore</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-tile"
+           data-location="Shanghai"
+           data-sublocation="China · 2024–2026"
+           data-photos="sh1.jpeg,sh2.jpeg,sh3.jpeg"
+           onclick="openLightbox(this)">
+        <div class="tile-bg tile-shanghai">
+          <div class="tile-overlay"></div>
+          <div class="tile-caption">
+            <div class="tile-name">Shanghai</div>
+            <div class="tile-sub">China · 2024–2026</div>
+            <div class="tile-count">3 photos · click to explore</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-tile"
+           data-location="East Asia"
+           data-sublocation="Japan · South Korea"
+           data-photos="asia1.jpeg,asia2.jpeg,asia3.jpeg,asia4.jpeg"
+           onclick="openLightbox(this)">
+        <div class="tile-bg tile-asia">
+          <div class="tile-overlay"></div>
+          <div class="tile-caption">
+            <div class="tile-name">East Asia</div>
+            <div class="tile-sub">Japan · South Korea</div>
+            <div class="tile-count">4 photos · click to explore</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Extra strip -->
+    <div class="photo-strip">
+
+      <div class="strip-tile"
+           data-location="Below the Surface"
+           data-sublocation="PADI Open Water · 2026"
+           data-photos="dive1.jpeg,dive2.jpeg,dive3.jpeg"
+           onclick="openLightbox(this)">
+        <div class="strip-bg tile-surface">
+          <div class="tile-overlay"></div>
+          <div class="tile-caption">
+            <div class="tile-name">Below the surface</div>
+            <div class="tile-sub">PADI Open Water · 2026</div>
+            <div class="tile-count">3 photos · click to explore</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="strip-tile"
+           data-location="In Transit"
+           data-sublocation="Always somewhere"
+           data-photos="travel1.jpeg,travel2.jpeg,travel3.jpeg,travel4.jpeg,travel5.jpeg"
+           onclick="openLightbox(this)">
+        <div class="strip-bg tile-nature">
+          <div class="tile-overlay"></div>
+          <div class="tile-caption">
+            <div class="tile-name">In transit</div>
+            <div class="tile-sub">The Wild</div>
+            <div class="tile-count">5 photos · click to explore</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="photo-note">Click any tile to browse photos · Replace gradient placeholders with your own images</p>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="handleLightboxClick(event)">
+  <div class="lb-header">
+    <div class="lb-title-wrap">
+      <div class="lb-location" id="lbLocation"></div>
+      <div class="lb-sublocation" id="lbSublocation"></div>
+    </div>
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+  </div>
+
+  <div class="lb-stage">
+    <button class="lb-arrow prev" onclick="prevPhoto(event)">←</button>
+    <div class="lb-img-wrap" id="lbImgWrap">
+      <!-- Populated by JS -->
+    </div>
+    <button class="lb-arrow next" onclick="nextPhoto(event)">→</button>
+  </div>
+
+  <div class="lb-footer" id="lbDots"></div>
+  <div class="lb-counter" id="lbCounter"></div>
+</div>
+
+<!-- LOOKING -->
+<section class="looking" id="looking">
+  <div class="looking-inner">
+    <div class="looking-text">
+      <p class="section-label">Open to Work</p>
+      <h2 class="section-title">What I'm<br><em>looking for.</em></h2>
+      <p>I'm actively looking for a full-time role — <strong>remote or hybrid</strong>, ideally with an international company that operates in or hires from Mexico. I'm most useful in roles that mix commercial work with cross-border complexity.</p>
+      <p>I'm drawn to companies that move things across borders — products, payments, ideas — and where the work is actually international, not just the org chart.</p>
+      <p>Bilingual in Spanish and English, working Mandarin. Based in Mexico City. Available now.</p>
+    </div>
+    <div class="role-cards">
+      <div class="role-card"><div class="role-card-title">Supply Chain & Procurement</div><p class="role-card-desc">Sourcing, supplier management, international logistics, procurement strategy — especially in cross-border or LATAM contexts.</p></div>
+      <div class="role-card"><div class="role-card-title">Business Development</div><p class="role-card-desc">Building pipelines from scratch in new markets. Opening accounts, managing relationships, and turning cold contacts into long-term partners.</p></div>
+      <div class="role-card"><div class="role-card-title">Account Management</div><p class="role-card-desc">Owning strategic accounts, driving retention and growth, and being the person clients actually want to call.</p></div>
+      <div class="role-card"><div class="role-card-title">International Trade & Ops</div><p class="role-card-desc">Trade lanes, customs, cross-border operations — particularly involving the China–Mexico–US corridor.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <p class="section-label">Get in Touch</p>
+    <h2 class="section-title">Let's build<br><em>something.</em></h2>
+    <p class="contact-desc">Whether it's a role, a conversation, or a long shot — I'm open. The best things I've worked on came from unexpected messages.</p>
+    <div class="contact-links">
+      <a href="mailto:jprc007@gmail.com" class="contact-link primary">✉ jprc007@gmail.com</a>
+      <a href="https://linkedin.com/in/juan--pablo--ramirez" target="_blank" class="contact-link secondary">LinkedIn ↗</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">Juan Pablo Ramírez</div>
+  <div class="copy">Mexico City · 2026</div>
+</footer>
+
+<script>
+  // ── Nav scroll ──
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 60); });
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.timeline-item, .role-card, .gallery-tile, .strip-tile').forEach(el => {
+    el.style.opacity='0'; el.style.transform='translateY(24px)'; el.style.transition='opacity 0.7s ease, transform 0.7s ease';
+    observer.observe(el);
+  });
+
+  // ── Lightbox ──
+  let lbPhotos = [];
+  let lbIndex = 0;
+
+  function openLightbox(tile) {
+    const photos = tile.dataset.photos.split(',').map(p => p.trim()).filter(Boolean);
+    lbPhotos = photos;
+    lbIndex = 0;
+    document.getElementById('lbLocation').textContent = tile.dataset.location;
+    document.getElementById('lbSublocation').textContent = tile.dataset.sublocation;
+    renderLightbox();
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleLightboxClick(e) {
+    // Close if clicking the dark backdrop (not the image/controls)
+    if (e.target === document.getElementById('lightbox')) closeLightbox();
+  }
+
+  function renderLightbox() {
+    const wrap = document.getElementById('lbImgWrap');
+    const photo = lbPhotos[lbIndex];
+
+    // Try to render as image; show placeholder if file not found
+    wrap.innerHTML = '';
+    const img = document.createElement('img');
+    img.className = 'lb-img';
+    img.src = photo;
+    img.alt = document.getElementById('lbLocation').textContent;
+    img.onerror = function() {
+      // File not added yet — show friendly placeholder
+      wrap.innerHTML = `
+        <div class="lb-placeholder">
+          <div class="ph-icon">📷</div>
+          <div>Add <strong>${photo}</strong> to your folder</div>
+          <div style="font-size:11px;opacity:0.5;margin-top:4px">See instructions in the HTML file</div>
+        </div>`;
+    };
+    wrap.appendChild(img);
+
+    // Dots
+    const dotsEl = document.getElementById('lbDots');
+    dotsEl.innerHTML = lbPhotos.map((_, i) =>
+      `<button class="lb-dot ${i===lbIndex?'active':''}" onclick="goToPhoto(${i})"></button>`
+    ).join('');
+
+    // Counter
+    document.getElementById('lbCounter').textContent = `${lbIndex+1} / ${lbPhotos.length}`;
+  }
+
+  function goToPhoto(i) {
+    lbIndex = i;
+    renderLightbox();
+  }
+
+  function nextPhoto(e) {
+    e.stopPropagation();
+    lbIndex = (lbIndex + 1) % lbPhotos.length;
+    renderLightbox();
+  }
+
+  function prevPhoto(e) {
+    e.stopPropagation();
+    lbIndex = (lbIndex - 1 + lbPhotos.length) % lbPhotos.length;
+    renderLightbox();
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'ArrowRight') nextPhoto(e);
+    if (e.key === 'ArrowLeft') prevPhoto(e);
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>
+
+</body>
+</html>
