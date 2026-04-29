@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>China–Mexico Trade Dashboard · Juan Pablo Ramírez</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sand:       #f5f0e8;
+      --sand-dark:  #ede6d6;
+      --ocean:      #1a3a4a;
+      --ocean-mid:  #2a5568;
+      --ocean-light:#4a8fa8;
+      --burnt:      #bf5700;
+      --burnt-soft: #d4763a;
+      --text:       #2c2416;
+      --muted:      #7a6f60;
+      --white:      #fdfaf5;
+      --border:     #ddd6c8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--white); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ── NAV ── */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; background: rgba(253,250,245,0.95); backdrop-filter: blur(8px); box-shadow: 0 1px 0 rgba(0,0,0,0.07); }
+    .nav-back { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-back::before { content: '← '; }
+    .nav-back:hover { color: var(--ocean); }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; color: var(--ocean); letter-spacing: 0.05em; }
+    .nav-status { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #5a9e6f; animation: blink 2.5s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── HERO ── */
+    .hero { background: var(--ocean); padding: 130px 48px 72px; position: relative; overflow: hidden; }
+    .hero::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse 80% 60% at 80% 50%, rgba(74,143,168,0.2) 0%, transparent 60%); pointer-events:none; }
+    .hero-inner { max-width: 800px; margin: 0 auto; position: relative; }
+    .hero-label { font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--burnt-soft); margin-bottom: 20px; opacity:0; animation: fadeUp 0.8s 0.1s forwards; }
+    .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 6vw, 68px); font-weight: 300; line-height: 1.05; color: var(--white); letter-spacing: -0.01em; opacity:0; animation: fadeUp 0.8s 0.25s forwards; }
+    .hero h1 em { font-style: italic; color: rgba(255,255,255,0.55); }
+    .hero-sub { margin-top: 24px; font-size: 16px; line-height: 1.75; color: rgba(255,255,255,0.55); max-width: 520px; opacity:0; animation: fadeUp 0.8s 0.4s forwards; }
+    .hero-meta { display: flex; gap: 48px; margin-top: 48px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); opacity:0; animation: fadeUp 0.8s 0.55s forwards; }
+    .meta-item { display: flex; flex-direction: column; gap: 5px; }
+    .meta-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+    .meta-value { font-size: 14px; color: rgba(255,255,255,0.7); }
+
+    /* ── RATES BAR ── */
+    .rates-bar { background: var(--sand); border-bottom: 1px solid var(--border); padding: 14px 48px; display: flex; align-items: center; gap: 0; overflow-x: auto; }
+    .rates-bar-label { font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--burnt); white-space: nowrap; flex-shrink: 0; margin-right: 32px; }
+    .rate-item { display: flex; align-items: baseline; gap: 10px; flex-shrink: 0; padding: 0 28px; border-right: 1px solid var(--border); }
+    .rate-item:first-of-type { padding-left: 0; }
+    .rate-name { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .rate-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--ocean); }
+    .rates-updated { margin-left: auto; font-size: 10px; color: var(--muted); letter-spacing: 0.08em; white-space: nowrap; flex-shrink: 0; padding-left: 28px; }
+
+    /* ── MAIN ── */
+    .main { max-width: 900px; margin: 0 auto; padding: 64px 48px 100px; display: flex; flex-direction: column; gap: 64px; }
+
+    /* ── SECTION ── */
+    .section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--burnt); margin-bottom: 10px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 40px); font-weight: 300; line-height: 1.1; color: var(--ocean); letter-spacing: -0.01em; margin-bottom: 32px; }
+    .section-title em { font-style: italic; color: var(--ocean-light); }
+
+    /* ── CARD ── */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 3px; padding: 36px; }
+    .card-sand { background: var(--sand); border: 1px solid var(--border); border-radius: 3px; padding: 36px; }
+
+    /* ── INPUTS ── */
+    .input-group { display: flex; flex-direction: column; gap: 7px; }
+    .input-label { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .input-wrap { position: relative; }
+    .input-prefix { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 500; color: var(--ocean-light); letter-spacing: 0.05em; pointer-events: none; }
+    input[type=number], select {
+      width: 100%; border: 1px solid var(--border); background: var(--white); color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 300;
+      padding: 12px 12px 12px 48px; border-radius: 2px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -moz-appearance: textfield;
+    }
+    input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type=number]:focus, select:focus { border-color: var(--ocean-light); box-shadow: 0 0 0 3px rgba(74,143,168,0.12); }
+    select { padding-left: 13px; font-size: 14px; cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6f60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 13px center;
+    }
+    select option { background: var(--white); }
+
+    /* ── CONVERTER ── */
+    .converter-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: end; }
+    .swap-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 42px; background: var(--sand); border: 1px solid var(--border); border-radius: 2px; color: var(--muted); cursor: pointer; font-size: 18px; transition: all 0.2s; flex-shrink: 0; }
+    .swap-btn:hover { border-color: var(--ocean-light); color: var(--ocean); }
+
+    .conv-result { margin-top: 24px; padding: 24px 28px; background: var(--ocean); border-radius: 2px; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .conv-result-main { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; color: var(--white); letter-spacing: -0.01em; }
+    .conv-result-detail { font-size: 12px; color: rgba(255,255,255,0.45); text-align: right; line-height: 1.9; letter-spacing: 0.05em; }
+
+    .rate-cells { margin-top: 14px; display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+    .rate-cell { background: var(--sand); padding: 13px 16px; }
+    .rate-cell-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .rate-cell-value { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; color: var(--ocean); }
+
+    /* ── SPARKLINE ── */
+    .sparkline-wrap { margin-top: 24px; }
+    .sparkline-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+    .sparkline-title { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    .sparkline-range { font-size: 11px; color: var(--muted); }
+    #sparkline-svg { width: 100%; height: 72px; display: block; }
+    .sparkline-loading { font-size: 12px; color: var(--muted); font-style: italic; padding: 20px 0; text-align: center; }
+
+    /* ── LANDED COST ── */
+    .lc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .lc-full { grid-column: 1 / -1; }
+    .lc-section-label { grid-column: 1/-1; font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ocean-light); border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-top: 8px; }
+
+    .lc-results { margin-top: 28px; }
+    .lc-result-cells { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 2px 2px 0 0; overflow: hidden; }
+    .lc-cell { background: var(--sand); padding: 20px; }
+    .lc-cell.highlight { background: var(--ocean); }
+    .lc-cell-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .lc-cell.highlight .lc-cell-label { color: rgba(255,255,255,0.5); }
+    .lc-cell-value { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--ocean); }
+    .lc-cell.highlight .lc-cell-value { color: var(--white); }
+    .lc-cell-currency { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .lc-cell.highlight .lc-cell-currency { color: rgba(255,255,255,0.35); }
+
+    /* ── WATERFALL ── */
+    .waterfall { margin-top: 1px; border: 1px solid var(--border); border-top: none; border-radius: 0 0 2px 2px; padding: 24px; background: var(--white); }
+    .waterfall-title { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+    .wf-bars { display: flex; flex-direction: column; gap: 8px; }
+    .wf-row { display: grid; grid-template-columns: 140px 1fr 80px; gap: 12px; align-items: center; }
+    .wf-label { font-size: 12px; color: var(--muted); text-align: right; }
+    .wf-bar-wrap { height: 20px; background: var(--sand); border-radius: 1px; overflow: hidden; position: relative; }
+    .wf-bar { height: 100%; border-radius: 1px; transition: width 0.6s ease; }
+    .wf-bar.product { background: var(--ocean); }
+    .wf-bar.freight { background: var(--ocean-light); }
+    .wf-bar.duty { background: var(--burnt); }
+    .wf-bar.customs { background: var(--burnt-soft); }
+    .wf-bar.total { background: var(--ocean-mid); }
+    .wf-value { font-size: 12px; color: var(--text); font-weight: 400; text-align: right; }
+    .wf-divider { grid-column: 1/-1; height: 1px; background: var(--border); margin: 4px 0; }
+    .wf-row.total-row .wf-label { color: var(--ocean); font-weight: 500; }
+    .wf-row.total-row .wf-value { color: var(--ocean); font-weight: 500; }
+
+    /* ── SCENARIO COMPARISON ── */
+    .scenario-intro { font-size: 14px; line-height: 1.7; color: var(--muted); margin-bottom: 28px; }
+    .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .scenario-col { border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+    .scenario-col-header { padding: 14px 20px; background: var(--ocean); display: flex; align-items: center; justify-content: space-between; }
+    .scenario-col.b .scenario-col-header { background: var(--ocean-mid); }
+    .scenario-col-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; color: var(--white); }
+    .scenario-col-tag { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+    .scenario-col-inputs { padding: 20px; background: var(--sand); display: flex; flex-direction: column; gap: 14px; }
+    .sc-input-row { display: flex; flex-direction: column; gap: 6px; }
+    .sc-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+    .scenario-shared { margin-top: 20px; padding: 20px; background: var(--white); border: 1px solid var(--border); border-radius: 2px; }
+    .scenario-shared-title { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+    .scenario-shared-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    .scenario-results { margin-top: 20px; }
+    .sc-result-row { display: grid; grid-template-columns: 160px 1fr 1fr 80px; gap: 0; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 1px; }
+    .sc-result-row.header { background: var(--ocean); }
+    .sc-result-cell { padding: 12px 16px; border-right: 1px solid var(--border); font-size: 13px; }
+    .sc-result-cell:last-child { border-right: none; }
+    .sc-result-row.header .sc-result-cell { color: rgba(255,255,255,0.6); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .sc-result-row.data { background: var(--sand); }
+    .sc-result-row.data:hover { background: var(--sand-dark); }
+    .sc-result-row.highlight-row { background: var(--white); }
+    .sc-result-row.highlight-row .sc-result-cell { font-weight: 500; color: var(--ocean); }
+    .winner { color: #3a7a4a !important; font-weight: 500 !important; }
+    .loser { color: var(--muted) !important; }
+    .diff-cell { font-size: 12px; color: var(--muted); }
+    .diff-better { color: #3a7a4a; }
+    .diff-worse { color: var(--burnt); }
+
+    /* ── PDF BUTTON ── */
+    .pdf-section { display: flex; justify-content: flex-end; margin-top: -32px; margin-bottom: 8px; }
+    .pdf-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: none; border: 1px solid var(--border); border-radius: 2px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .pdf-btn:hover { border-color: var(--ocean); color: var(--ocean); }
+    .pdf-btn svg { width: 14px; height: 14px; }
+
+    /* ── FOOTER ── */
+    .page-footer { background: var(--ocean); padding: 32px 48px; display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
+    .page-footer .logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.6); }
+    .page-footer .copy { font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; }
+    .page-footer .copy a { color: rgba(255,255,255,0.4); text-decoration: none; }
+    .page-footer .copy a:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── PRINT ── */
+    @media print {
+      nav, .pdf-section, .rates-bar { display: none !important; }
+      .hero { padding-top: 32px; }
+      body { background: white; }
+      .card, .card-sand { border: 1px solid #ddd; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      nav { padding: 16px 20px; }
+      .hero { padding: 110px 24px 56px; }
+      .hero-meta { flex-wrap: wrap; gap: 24px; }
+      .rates-bar { padding: 12px 20px; }
+      .main { padding: 40px 20px 80px; gap: 48px; }
+      .card, .card-sand { padding: 24px 20px; }
+      .converter-row { grid-template-columns: 1fr; }
+      .swap-btn { width: 100%; height: 36px; }
+      .rate-cells { grid-template-columns: 1fr; }
+      .conv-result { flex-direction: column; }
+      .conv-result-detail { text-align: left; }
+      .lc-grid { grid-template-columns: 1fr; }
+      .lc-result-cells { grid-template-columns: 1fr; }
+      .scenario-grid { grid-template-columns: 1fr; }
+      .scenario-shared-grid { grid-template-columns: 1fr 1fr; }
+      .sc-result-row { grid-template-columns: 1fr 1fr 1fr; }
+      .sc-result-row .sc-result-cell:first-child { display: none; }
+      .page-footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-back" href="https://jpr23.github.io">Portfolio</a>
+  <span class="nav-logo">Juan Pablo Ramírez</span>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    <span id="nav-status-text">Loading rates…</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <p class="hero-label">Interactive Tool · China–Mexico Corridor</p>
+    <h1>The numbers behind<br>the <em>trade lane.</em></h1>
+    <p class="hero-sub">A working calculator built from two years of doing this for real — sourcing in China, selling into Mexico, managing the math in between.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Built by</span>
+        <span class="meta-value">Juan Pablo Ramírez</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Data source</span>
+        <span class="meta-value">Frankfurter API · ECB</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Corridor</span>
+        <span class="meta-value">CNY → USD → MXN</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RATES BAR -->
+<div class="rates-bar">
+  <span class="rates-bar-label">Live Rates</span>
+  <div class="rate-item">
+    <span class="rate-name">USD / MXN</span>
+    <span class="rate-val" id="bar-usd-mxn">—</span>
+  </div>
+  <div class="rate-item">
+    <span class="rate-name">CNY / MXN</span>
+    <span class="rate-val" id="bar-cny-mxn">—</span>
+  </div>
+  <div class="rate-item">
+    <span class="rate-name">CNY / USD</span>
+    <span class="rate-val" id="bar-cny-usd">—</span>
+  </div>
+  <span class="rates-updated" id="rates-updated">Fetching…</span>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- PDF EXPORT -->
+  <div class="pdf-section">
+    <button class="pdf-btn" onclick="window.print()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 10H2a1 1 0 01-1-1V6a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-1 1h-2"/>
+        <rect x="4" y="9" width="8" height="6" rx="1"/>
+        <path d="M4 5V2h8v3"/>
+      </svg>
+      Export PDF
+    </button>
+  </div>
+
+  <!-- 01 CURRENCY CONVERTER -->
+  <div>
+    <p class="section-label">01 · Currency</p>
+    <h2 class="section-title">Converter</h2>
+    <div class="card">
+      <div class="converter-row">
+        <div class="input-group">
+          <label class="input-label" for="conv-amount">Amount</label>
+          <div class="input-wrap">
+            <span class="input-prefix" id="from-tag">CNY</span>
+            <input type="number" id="conv-amount" value="1000" min="0" step="any" />
+          </div>
+        </div>
+        <button class="swap-btn" id="swap-btn" title="Swap">⇄</button>
+        <div class="input-group">
+          <label class="input-label" for="conv-pair">Pair</label>
+          <select id="conv-pair">
+            <option value="CNY-MXN">CNY → MXN</option>
+            <option value="CNY-USD">CNY → USD</option>
+            <option value="USD-MXN">USD → MXN</option>
+            <option value="MXN-USD">MXN → USD</option>
+            <option value="MXN-CNY">MXN → CNY</option>
+            <option value="USD-CNY">USD → CNY</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="conv-result">
+        <div class="conv-result-main" id="conv-result">—</div>
+        <div class="conv-result-detail" id="conv-detail">Loading…</div>
+      </div>
+
+      <div class="rate-cells">
+        <div class="rate-cell">
+          <div class="rate-cell-label">1 CNY =</div>
+          <div class="rate-cell-value" id="rc-cny-mxn">— MXN</div>
+        </div>
+        <div class="rate-cell">
+          <div class="rate-cell-label">1 USD =</div>
+          <div class="rate-cell-value" id="rc-usd-mxn">— MXN</div>
+        </div>
+        <div class="rate-cell">
+          <div class="rate-cell-label">1 CNY =</div>
+          <div class="rate-cell-value" id="rc-cny-usd">— USD</div>
+        </div>
+      </div>
+
+      <!-- SPARKLINE -->
+      <div class="sparkline-wrap">
+        <div class="sparkline-header">
+          <span class="sparkline-title">USD / MXN · 30-Day Movement</span>
+          <span class="sparkline-range" id="spark-range">—</span>
+        </div>
+        <div id="sparkline-loading" class="sparkline-loading">Loading historical data…</div>
+        <svg id="sparkline-svg" style="display:none"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 LANDED COST -->
+  <div>
+    <p class="section-label">02 · Landed Cost</p>
+    <h2 class="section-title">Cost <em>Calculator</em></h2>
+    <div class="card">
+      <div class="lc-grid">
+        <div class="lc-section-label">Product</div>
+        <div class="input-group">
+          <label class="input-label" for="lc-fob">FOB Price / Unit</label>
+          <div class="input-wrap">
+            <span class="input-prefix">CNY</span>
+            <input type="number" id="lc-fob" value="50" min="0" step="any" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="lc-units">Units</label>
+          <div class="input-wrap">
+            <span class="input-prefix">QTY</span>
+            <input type="number" id="lc-units" value="500" min="1" step="1" />
+          </div>
+        </div>
+
+        <div class="lc-section-label">Logistics & Import</div>
+        <div class="input-group">
+          <label class="input-label" for="lc-freight">Freight Total (USD)</label>
+          <div class="input-wrap">
+            <span class="input-prefix">USD</span>
+            <input type="number" id="lc-freight" value="800" min="0" step="any" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="lc-duty">Import Duty (%)</label>
+          <div class="input-wrap">
+            <span class="input-prefix" style="font-size:13px">%</span>
+            <input type="number" id="lc-duty" value="15" min="0" max="100" step="0.1" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="lc-customs">Customs & Handling (USD)</label>
+          <div class="input-wrap">
+            <span class="input-prefix">USD</span>
+            <input type="number" id="lc-customs" value="150" min="0" step="any" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="lc-other">Other Costs (USD)</label>
+          <div class="input-wrap">
+            <span class="input-prefix">USD</span>
+            <input type="number" id="lc-other" value="0" min="0" step="any" />
+          </div>
+        </div>
+
+        <div class="lc-section-label">Pricing</div>
+        <div class="input-group">
+          <label class="input-label" for="lc-margin">Target Margin (%)</label>
+          <div class="input-wrap">
+            <span class="input-prefix" style="font-size:13px">%</span>
+            <input type="number" id="lc-margin" value="40" min="0" max="99" step="1" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="lc-vat">IVA / VAT (%)</label>
+          <div class="input-wrap">
+            <span class="input-prefix" style="font-size:13px">%</span>
+            <input type="number" id="lc-vat" value="16" min="0" max="100" step="0.1" />
+          </div>
+        </div>
+      </div>
+
+      <div class="lc-results">
+        <div class="lc-result-cells">
+          <div class="lc-cell">
+            <div class="lc-cell-label">Landed / Unit</div>
+            <div class="lc-cell-value" id="lc-r-usd">—</div>
+            <div class="lc-cell-currency">USD</div>
+          </div>
+          <div class="lc-cell">
+            <div class="lc-cell-label">Landed / Unit</div>
+            <div class="lc-cell-value" id="lc-r-mxn">—</div>
+            <div class="lc-cell-currency">MXN</div>
+          </div>
+          <div class="lc-cell highlight">
+            <div class="lc-cell-label">Suggested Retail (w/ VAT)</div>
+            <div class="lc-cell-value" id="lc-r-retail">—</div>
+            <div class="lc-cell-currency">MXN</div>
+          </div>
+        </div>
+
+        <!-- WATERFALL CHART -->
+        <div class="waterfall">
+          <div class="waterfall-title">Cost Breakdown per Unit (USD)</div>
+          <div class="wf-bars">
+            <div class="wf-row">
+              <div class="wf-label">Product (CNY→USD)</div>
+              <div class="wf-bar-wrap"><div class="wf-bar product" id="wf-bar-product" style="width:0%"></div></div>
+              <div class="wf-value" id="wf-val-product">—</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Freight</div>
+              <div class="wf-bar-wrap"><div class="wf-bar freight" id="wf-bar-freight" style="width:0%"></div></div>
+              <div class="wf-value" id="wf-val-freight">—</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Import Duty</div>
+              <div class="wf-bar-wrap"><div class="wf-bar duty" id="wf-bar-duty" style="width:0%"></div></div>
+              <div class="wf-value" id="wf-val-duty">—</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Customs & Other</div>
+              <div class="wf-bar-wrap"><div class="wf-bar customs" id="wf-bar-customs" style="width:0%"></div></div>
+              <div class="wf-value" id="wf-val-customs">—</div>
+            </div>
+            <div class="wf-divider"></div>
+            <div class="wf-row total-row">
+              <div class="wf-label">Total Landed</div>
+              <div class="wf-bar-wrap"><div class="wf-bar total" id="wf-bar-total" style="width:100%"></div></div>
+              <div class="wf-value" id="wf-val-total">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 SCENARIO COMPARISON -->
+  <div>
+    <p class="section-label">03 · Supplier Analysis</p>
+    <h2 class="section-title">Scenario <em>Comparison</em></h2>
+    <div class="card-sand">
+      <p class="scenario-intro">Compare two suppliers side by side — the same calculation engine, two sets of inputs. Useful when you're weighing a cheaper FOB price against higher freight, or evaluating different duty classifications.</p>
+
+      <div class="scenario-grid">
+        <!-- Supplier A -->
+        <div class="scenario-col a">
+          <div class="scenario-col-header">
+            <span class="scenario-col-name">Supplier A</span>
+            <span class="scenario-col-tag">Option 1</span>
+          </div>
+          <div class="scenario-col-inputs">
+            <div class="sc-input-row">
+              <label class="sc-label">FOB Price / Unit (CNY)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">CNY</span>
+                <input type="number" id="sc-a-fob" value="50" min="0" step="any" />
+              </div>
+            </div>
+            <div class="sc-input-row">
+              <label class="sc-label">Freight Total (USD)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">USD</span>
+                <input type="number" id="sc-a-freight" value="800" min="0" step="any" />
+              </div>
+            </div>
+            <div class="sc-input-row">
+              <label class="sc-label">Import Duty (%)</label>
+              <div class="input-wrap">
+                <span class="input-prefix" style="font-size:13px">%</span>
+                <input type="number" id="sc-a-duty" value="15" min="0" max="100" step="0.1" />
+              </div>
+            </div>
+            <div class="sc-input-row">
+              <label class="sc-label">Customs & Other (USD)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">USD</span>
+                <input type="number" id="sc-a-other" value="150" min="0" step="any" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supplier B -->
+        <div class="scenario-col b">
+          <div class="scenario-col-header">
+            <span class="scenario-col-name">Supplier B</span>
+            <span class="scenario-col-tag">Option 2</span>
+          </div>
+          <div class="scenario-col-inputs">
+            <div class="sc-input-row">
+              <label class="sc-label">FOB Price / Unit (CNY)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">CNY</span>
+                <input type="number" id="sc-b-fob" value="42" min="0" step="any" />
+              </div>
+            </div>
+            <div class="sc-input-row">
+              <label class="sc-label">Freight Total (USD)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">USD</span>
+                <input type="number" id="sc-b-freight" value="1100" min="0" step="any" />
+              </div>
+            </div>
+            <div class="sc-input-row">
+              <label class="sc-label">Import Duty (%)</label>
+              <div class="input-wrap">
+                <span class="input-prefix" style="font-size:13px">%</span>
+                <input type="number" id="sc-b-duty" value="15" min="0" max="100" step="0.1" />
+              </div>
+            </div>
+            <div class="sc-input-row">
+              <label class="sc-label">Customs & Other (USD)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">USD</span>
+                <input type="number" id="sc-b-other" value="180" min="0" step="any" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared inputs -->
+      <div class="scenario-shared">
+        <div class="scenario-shared-title">Shared Parameters</div>
+        <div class="scenario-shared-grid">
+          <div class="input-group">
+            <label class="input-label" for="sc-units">Units</label>
+            <div class="input-wrap">
+              <span class="input-prefix">QTY</span>
+              <input type="number" id="sc-units" value="500" min="1" step="1" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="sc-margin">Target Margin (%)</label>
+            <div class="input-wrap">
+              <span class="input-prefix" style="font-size:13px">%</span>
+              <input type="number" id="sc-margin" value="40" min="0" max="99" step="1" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="sc-vat">IVA / VAT (%)</label>
+            <div class="input-wrap">
+              <span class="input-prefix" style="font-size:13px">%</span>
+              <input type="number" id="sc-vat" value="16" min="0" max="100" step="0.1" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results table -->
+      <div class="scenario-results">
+        <div class="sc-result-row header">
+          <div class="sc-result-cell">Metric</div>
+          <div class="sc-result-cell">Supplier A</div>
+          <div class="sc-result-cell">Supplier B</div>
+          <div class="sc-result-cell">Diff</div>
+        </div>
+        <div class="sc-result-row data">
+          <div class="sc-result-cell">Landed / Unit (USD)</div>
+          <div class="sc-result-cell" id="sc-r-a-usd">—</div>
+          <div class="sc-result-cell" id="sc-r-b-usd">—</div>
+          <div class="sc-result-cell diff-cell" id="sc-d-usd">—</div>
+        </div>
+        <div class="sc-result-row data">
+          <div class="sc-result-cell">Landed / Unit (MXN)</div>
+          <div class="sc-result-cell" id="sc-r-a-mxn">—</div>
+          <div class="sc-result-cell" id="sc-r-b-mxn">—</div>
+          <div class="sc-result-cell diff-cell" id="sc-d-mxn">—</div>
+        </div>
+        <div class="sc-result-row data">
+          <div class="sc-result-cell">Total Order Cost (USD)</div>
+          <div class="sc-result-cell" id="sc-r-a-total">—</div>
+          <div class="sc-result-cell" id="sc-r-b-total">—</div>
+          <div class="sc-result-cell diff-cell" id="sc-d-total">—</div>
+        </div>
+        <div class="sc-result-row highlight-row">
+          <div class="sc-result-cell">Suggested Retail (MXN)</div>
+          <div class="sc-result-cell" id="sc-r-a-retail">—</div>
+          <div class="sc-result-cell" id="sc-r-b-retail">—</div>
+          <div class="sc-result-cell diff-cell" id="sc-d-retail">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="page-footer">
+  <span class="logo">Juan Pablo Ramírez</span>
+  <span class="copy">Rates via <a href="https://frankfurter.app" target="_blank">Frankfurter / ECB</a> · <a href="https://jpr23.github.io">jpr23.github.io</a> · Mexico City 2026</span>
+</footer>
+
+<script>
+  // ── STATE ──
+  let R = { USD: 1, MXN: 17.15, CNY: 7.24 }; // base: USD
+  let sparkData = [];
+
+  // ── RATES ──
+  async function loadRates() {
+    try {
+      const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=MXN,CNY');
+      const d = await res.json();
+      R.MXN = d.rates.MXN;
+      R.CNY = d.rates.CNY;
+      document.getElementById('nav-status-text').textContent = 'Live rates';
+    } catch(e) {
+      document.getElementById('nav-status-text').textContent = 'Offline (fallback)';
+    }
+    updateAll();
+    const now = new Date();
+    document.getElementById('rates-updated').textContent =
+      'Updated ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  async function loadSparkline() {
+    try {
+      const end = new Date();
+      const start = new Date(); start.setDate(start.getDate() - 30);
+      const fmt = d => d.toISOString().split('T')[0];
+      const res = await fetch(`https://api.frankfurter.app/${fmt(start)}..${fmt(end)}?from=USD&to=MXN`);
+      const d = await res.json();
+      sparkData = Object.entries(d.rates).map(([date, r]) => ({ date, val: r.MXN }));
+      drawSparkline();
+    } catch(e) {
+      document.getElementById('sparkline-loading').textContent = 'Historical data unavailable.';
+    }
+  }
+
+  function drawSparkline() {
+    if (!sparkData.length) return;
+    const svg = document.getElementById('sparkline-svg');
+    const loading = document.getElementById('sparkline-loading');
+    loading.style.display = 'none';
+    svg.style.display = 'block';
+
+    const vals = sparkData.map(d => d.val);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const range = max - min || 1;
+    const W = 820, H = 72, pad = 8;
+
+    const pts = sparkData.map((d, i) => {
+      const x = pad + (i / (sparkData.length - 1)) * (W - pad * 2);
+      const y = H - pad - ((d.val - min) / range) * (H - pad * 2);
+      return `${x},${y}`;
+    });
+
+    const lastVal = vals[vals.length - 1];
+    const firstVal = vals[0];
+    const color = lastVal >= firstVal ? '#2a5568' : '#bf5700';
+
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.innerHTML = `
+      <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="${color}"/>
+    `;
+
+    const lo = min.toFixed(2), hi = max.toFixed(2);
+    document.getElementById('spark-range').textContent = `Low ${lo} · High ${hi} · Current ${lastVal.toFixed(2)}`;
+  }
+
+  // ── MATH ──
+  function convert(amount, from, to) {
+    const inUSD = from === 'USD' ? amount : amount / R[from];
+    return to === 'USD' ? inUSD : inUSD * R[to];
+  }
+
+  function fmt(n, dec = 2) {
+    if (n == null || isNaN(n)) return '—';
+    return n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  }
+
+  function calcLanded(fobCNY, units, freightUSD, dutyPct, customsUSD, otherUSD) {
+    const productUSD = convert(fobCNY * units, 'CNY', 'USD');
+    const productPerUnit = productUSD / units;
+    const freightPU = freightUSD / units;
+    const dutyPU = (productUSD * dutyPct / 100) / units;
+    const customsPU = (customsUSD + otherUSD) / units;
+    const landedUSD = productPerUnit + freightPU + dutyPU + customsPU;
+    const landedMXN = convert(landedUSD, 'USD', 'MXN');
+    return { productPerUnit, freightPU, dutyPU, customsPU, landedUSD, landedMXN };
+  }
+
+  function retailPrice(landedMXN, marginPct, vatPct) {
+    return (landedMXN / (1 - marginPct / 100)) * (1 + vatPct / 100);
+  }
+
+  // ── UPDATE FUNCTIONS ──
+  function updateAll() {
+    updateRatesBar();
+    updateRateCells();
+    updateConverter();
+    updateLandedCost();
+    updateScenario();
+  }
+
+  function updateRatesBar() {
+    document.getElementById('bar-usd-mxn').textContent = fmt(R.MXN);
+    document.getElementById('bar-cny-mxn').textContent = fmt(convert(1,'CNY','MXN'));
+    document.getElementById('bar-cny-usd').textContent = fmt(convert(1,'CNY','USD'), 4);
+  }
+
+  function updateRateCells() {
+    document.getElementById('rc-cny-mxn').textContent = fmt(convert(1,'CNY','MXN')) + ' MXN';
+    document.getElementById('rc-usd-mxn').textContent = fmt(R.MXN) + ' MXN';
+    document.getElementById('rc-cny-usd').textContent = fmt(convert(1,'CNY','USD'), 4) + ' USD';
+  }
+
+  function updateConverter() {
+    const amount = parseFloat(document.getElementById('conv-amount').value) || 0;
+    const pair = document.getElementById('conv-pair').value;
+    const [from, to] = pair.split('-');
+    document.getElementById('from-tag').textContent = from;
+    const result = convert(amount, from, to);
+    const rate = convert(1, from, to);
+    document.getElementById('conv-result').textContent = fmt(result) + ' ' + to;
+    document.getElementById('conv-detail').textContent =
+      '1 ' + from + ' = ' + fmt(rate, 4) + ' ' + to + '\nECB / Frankfurter API';
+  }
+
+  function updateLandedCost() {
+    const fob    = parseFloat(document.getElementById('lc-fob').value) || 0;
+    const units  = parseFloat(document.getElementById('lc-units').value) || 1;
+    const freight= parseFloat(document.getElementById('lc-freight').value) || 0;
+    const duty   = parseFloat(document.getElementById('lc-duty').value) || 0;
+    const customs= parseFloat(document.getElementById('lc-customs').value) || 0;
+    const other  = parseFloat(document.getElementById('lc-other').value) || 0;
+    const margin = parseFloat(document.getElementById('lc-margin').value) || 0;
+    const vat    = parseFloat(document.getElementById('lc-vat').value) || 0;
+
+    const c = calcLanded(fob, units, freight, duty, customs, other);
+    const retail = retailPrice(c.landedMXN, margin, vat);
+
+    document.getElementById('lc-r-usd').textContent = '$' + fmt(c.landedUSD);
+    document.getElementById('lc-r-mxn').textContent = '$' + fmt(c.landedMXN);
+    document.getElementById('lc-r-retail').textContent = '$' + fmt(retail);
+
+    // Waterfall
+    const max = c.landedUSD;
+    const pct = v => max > 0 ? Math.max(2, (v / max) * 100) : 0;
+    document.getElementById('wf-bar-product').style.width  = pct(c.productPerUnit) + '%';
+    document.getElementById('wf-bar-freight').style.width  = pct(c.freightPU) + '%';
+    document.getElementById('wf-bar-duty').style.width     = pct(c.dutyPU) + '%';
+    document.getElementById('wf-bar-customs').style.width  = pct(c.customsPU) + '%';
+    document.getElementById('wf-bar-total').style.width    = '100%';
+    document.getElementById('wf-val-product').textContent  = '$' + fmt(c.productPerUnit);
+    document.getElementById('wf-val-freight').textContent  = '$' + fmt(c.freightPU);
+    document.getElementById('wf-val-duty').textContent     = '$' + fmt(c.dutyPU);
+    document.getElementById('wf-val-customs').textContent  = '$' + fmt(c.customsPU);
+    document.getElementById('wf-val-total').textContent    = '$' + fmt(c.landedUSD);
+  }
+
+  function updateScenario() {
+    const units  = parseFloat(document.getElementById('sc-units').value) || 1;
+    const margin = parseFloat(document.getElementById('sc-margin').value) || 0;
+    const vat    = parseFloat(document.getElementById('sc-vat').value) || 0;
+
+    const inputs = ['a','b'].map(s => ({
+      fob:    parseFloat(document.getElementById(`sc-${s}-fob`).value) || 0,
+      freight:parseFloat(document.getElementById(`sc-${s}-freight`).value) || 0,
+      duty:   parseFloat(document.getElementById(`sc-${s}-duty`).value) || 0,
+      other:  parseFloat(document.getElementById(`sc-${s}-other`).value) || 0,
+    }));
+
+    const results = inputs.map(i => {
+      const c = calcLanded(i.fob, units, i.freight, i.duty, i.other, 0);
+      return {
+        landedUSD: c.landedUSD,
+        landedMXN: c.landedMXN,
+        totalUSD: c.landedUSD * units,
+        retail: retailPrice(c.landedMXN, margin, vat)
+      };
+    });
+
+    const [a, b] = results;
+    const winner = (va, vb) => va <= vb ? ['winner','loser'] : ['loser','winner'];
+
+    // Landed USD
+    const [wa, wb] = winner(a.landedUSD, b.landedUSD);
+    document.getElementById('sc-r-a-usd').innerHTML = `<span class="${wa}">$${fmt(a.landedUSD)}</span>`;
+    document.getElementById('sc-r-b-usd').innerHTML = `<span class="${wb}">$${fmt(b.landedUSD)}</span>`;
+    setDiff('sc-d-usd', a.landedUSD, b.landedUSD, 'USD');
+
+    // Landed MXN
+    const [wam, wbm] = winner(a.landedMXN, b.landedMXN);
+    document.getElementById('sc-r-a-mxn').innerHTML = `<span class="${wam}">$${fmt(a.landedMXN)}</span>`;
+    document.getElementById('sc-r-b-mxn').innerHTML = `<span class="${wbm}">$${fmt(b.landedMXN)}</span>`;
+    setDiff('sc-d-mxn', a.landedMXN, b.landedMXN, 'MXN');
+
+    // Total order
+    const [wat, wbt] = winner(a.totalUSD, b.totalUSD);
+    document.getElementById('sc-r-a-total').innerHTML = `<span class="${wat}">$${fmt(a.totalUSD)}</span>`;
+    document.getElementById('sc-r-b-total').innerHTML = `<span class="${wbt}">$${fmt(b.totalUSD)}</span>`;
+    setDiff('sc-d-total', a.totalUSD, b.totalUSD, 'USD');
+
+    // Retail
+    const [war, wbr] = winner(a.retail, b.retail);
+    document.getElementById('sc-r-a-retail').innerHTML = `<span class="${war}">$${fmt(a.retail)}</span>`;
+    document.getElementById('sc-r-b-retail').innerHTML = `<span class="${wbr}">$${fmt(b.retail)}</span>`;
+    setDiff('sc-d-retail', a.retail, b.retail, 'MXN');
+  }
+
+  function setDiff(id, a, b, currency) {
+    const diff = b - a;
+    const pct = a !== 0 ? (diff / a * 100) : 0;
+    const el = document.getElementById(id);
+    if (Math.abs(diff) < 0.005) {
+      el.textContent = 'Equal';
+      el.className = 'sc-result-cell diff-cell';
+      return;
+    }
+    const sign = diff > 0 ? '+' : '';
+    el.textContent = sign + fmt(diff) + ' ' + currency;
+    el.className = 'sc-result-cell diff-cell ' + (diff < 0 ? 'diff-better' : 'diff-worse');
+  }
+
+  // ── EVENTS ──
+  document.getElementById('conv-amount').addEventListener('input', updateConverter);
+  document.getElementById('conv-pair').addEventListener('change', updateConverter);
+  document.getElementById('swap-btn').addEventListener('click', () => {
+    const sel = document.getElementById('conv-pair');
+    const [f, t] = sel.value.split('-');
+    const swapped = t + '-' + f;
+    if ([...sel.options].some(o => o.value === swapped)) sel.value = swapped;
+    updateConverter();
+  });
+
+  ['lc-fob','lc-units','lc-freight','lc-duty','lc-customs','lc-other','lc-margin','lc-vat']
+    .forEach(id => document.getElementById(id).addEventListener('input', updateLandedCost));
+
+  ['sc-a-fob','sc-a-freight','sc-a-duty','sc-a-other',
+   'sc-b-fob','sc-b-freight','sc-b-duty','sc-b-other',
+   'sc-units','sc-margin','sc-vat']
+    .forEach(id => document.getElementById(id).addEventListener('input', updateScenario));
+
+  // ── INIT ──
+  updateAll();
+  loadRates();
+  loadSparkline();
+</script>
+</body>
+</html>
