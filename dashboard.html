@@ -190,6 +190,13 @@
     .page-footer .copy a { color: rgba(255,255,255,0.4); text-decoration: none; }
     .page-footer .copy a:hover { color: rgba(255,255,255,0.7); }
 
+    /* ── TOOL TABS ── */
+    .tool-tabs { display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 28px; border: 1px solid rgba(255,255,255,0.14); border-radius: 3px; }
+    .tool-tabs a { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none; padding: 8px 14px; border-radius: 2px; transition: background .2s, color .2s; }
+    .tool-tabs a:hover { color: var(--white); }
+    .tool-tabs a.active { background: var(--burnt); color: var(--white); }
+    @media print { .tool-tabs { display: none; } }
+
     /* ── PRINT ── */
     @media print {
       nav, .pdf-section, .rates-bar { display: none !important; }
@@ -236,9 +243,10 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
+    <div class="tool-tabs"><a class="active" href="/dashboard.html">Trade Lane</a><a href="/planning.html">Inventory Planning</a></div>
     <p class="hero-label">Interactive Tool · China–Mexico Corridor</p>
     <h1>The numbers behind<br>the <em>trade lane.</em></h1>
-    <p class="hero-sub">A working calculator built from two years of doing this for real — sourcing in China, selling into Mexico, managing the math in between.</p>
+    <p class="hero-sub">A working calculator built from doing this for real: sourcing in China, selling into Mexico, and managing the math in between.</p>
     <div class="hero-meta">
       <div class="meta-item">
         <span class="meta-label">Built by</span>
@@ -477,7 +485,7 @@
     <p class="section-label">03 · Supplier Analysis</p>
     <h2 class="section-title">Scenario <em>Comparison</em></h2>
     <div class="card-sand">
-      <p class="scenario-intro">Compare two suppliers side by side — the same calculation engine, two sets of inputs. Useful when you're weighing a cheaper FOB price against higher freight, or evaluating different duty classifications.</p>
+      <p class="scenario-intro">Compare two suppliers side by side: the same calculation engine, two sets of inputs. Useful when you're weighing a cheaper FOB price against higher freight, or evaluating different duty classifications.</p>
 
       <div class="scenario-grid">
         <!-- Supplier A -->
